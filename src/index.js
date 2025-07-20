@@ -17,7 +17,7 @@ const logger = require('./utils/logger');
 
 // 初始化Express应用
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // 中间件
 app.use(express.json());

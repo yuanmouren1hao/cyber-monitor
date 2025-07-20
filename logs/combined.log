@@ -55,3 +55,23 @@
 {"level":"info","message":"Server is running on http://localhost:3000","service":"twitter-monitor","timestamp":"2025-07-20 15:44:23"}
 {"level":"info","message":"Access the dashboard at /","service":"twitter-monitor","timestamp":"2025-07-20 15:44:23"}
 {"level":"info","message":"数据库连接成功","service":"twitter-monitor","timestamp":"2025-07-20 15:44:23"}
+{"level":"warn","message":"NTFY_SERVER or NTFY_TOPIC not configured. Notifications will be disabled.","service":"twitter-monitor","timestamp":"2025-07-20 16:38:24"}
+{"level":"info","message":"Server is running on http://localhost:3000","service":"twitter-monitor","timestamp":"2025-07-20 16:38:24"}
+{"level":"info","message":"Access the dashboard at /","service":"twitter-monitor","timestamp":"2025-07-20 16:38:24"}
+{"level":"info","message":"数据库连接成功","service":"twitter-monitor","timestamp":"2025-07-20 16:38:24"}
+{"error":{"code":"SQLITE_CONSTRAINT","errno":19},"level":"error","message":"SQL执行失败:","params":[null,null,null,null,null,null,null,null],"service":"twitter-monitor","sql":"INSERT INTO monitored_accounts \n       (username, user_id, display_name, profile_image_url, description, followers_count, following_count, tweet_count) \n       VALUES (?, ?, ?, ?, ?, ?, ?, ?)","timestamp":"2025-07-20 16:48:04"}
+{"code":"SQLITE_CONSTRAINT","errno":19,"level":"error","message":"Error adding account: SQLITE_CONSTRAINT: NOT NULL constraint failed: monitored_accounts.username","service":"twitter-monitor","stack":"Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: monitored_accounts.username","timestamp":"2025-07-20 16:48:04"}
+{"level":"warn","message":"NTFY_SERVER or NTFY_TOPIC not configured. Notifications will be disabled.","service":"twitter-monitor","timestamp":"2025-07-20 16:50:04"}
+{"level":"info","message":"Server is running on http://localhost:3000","service":"twitter-monitor","timestamp":"2025-07-20 16:50:04"}
+{"level":"info","message":"Access the dashboard at /","service":"twitter-monitor","timestamp":"2025-07-20 16:50:04"}
+{"level":"info","message":"数据库连接成功","service":"twitter-monitor","timestamp":"2025-07-20 16:50:04"}
+{"level":"warn","message":"NTFY_SERVER or NTFY_TOPIC not configured. Notifications will be disabled.","service":"twitter-monitor","timestamp":"2025-07-20 16:51:43"}
+{"level":"info","message":"Server is running on http://localhost:3000","service":"twitter-monitor","timestamp":"2025-07-20 16:51:43"}
+{"level":"info","message":"Access the dashboard at /","service":"twitter-monitor","timestamp":"2025-07-20 16:51:43"}
+{"level":"info","message":"数据库连接成功","service":"twitter-monitor","timestamp":"2025-07-20 16:51:43"}
+{"error":{"code":"SQLITE_CONSTRAINT","errno":19},"level":"error","message":"SQL执行失败:","params":[null,null,null,null,null,null,null,null],"service":"twitter-monitor","sql":"INSERT INTO monitored_accounts \n       (username, user_id, display_name, profile_image_url, description, followers_count, following_count, tweet_count) \n       VALUES (?, ?, ?, ?, ?, ?, ?, ?)","timestamp":"2025-07-20 16:52:45"}
+{"code":"SQLITE_CONSTRAINT","errno":19,"level":"error","message":"Error adding account: SQLITE_CONSTRAINT: NOT NULL constraint failed: monitored_accounts.username","service":"twitter-monitor","stack":"Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: monitored_accounts.username","timestamp":"2025-07-20 16:52:45"}
+{"level":"warn","message":"NTFY_SERVER or NTFY_TOPIC not configured. Notifications will be disabled.","service":"twitter-monitor","timestamp":"2025-07-20 16:54:18"}
+{"level":"info","message":"Server is running on http://localhost:3000","service":"twitter-monitor","timestamp":"2025-07-20 16:54:18"}
+{"level":"info","message":"Access the dashboard at /","service":"twitter-monitor","timestamp":"2025-07-20 16:54:18"}
+{"level":"info","message":"数据库连接成功","service":"twitter-monitor","timestamp":"2025-07-20 16:54:18"}

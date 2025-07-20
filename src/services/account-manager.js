@@ -14,11 +14,22 @@ class AccountManager {
 
   /**
    * 添加监控账号
-   * @param {string} username - Twitter用户名
+   * @param {string|Object} usernameOrData - Twitter用户名或包含账号信息的对象
    * @returns {Promise<Object>} 添加的账号信息
    */
-  async addAccount(username) {
+  async addAccount(usernameOrData) {
     try {
+      let username;
+      
+      // 处理不同的输入格式
+      if (typeof usernameOrData === 'string') {
+        username = usernameOrData;
+      } else if (typeof usernameOrData === 'object' && usernameOrData.username) {
+        username = usernameOrData.username;
+      } else {
+        throw new Error('缺少用户名参数');
+      }
+
       // 检查账号是否已存在
       const existing = await this.getAccountByUsername(username);
       if (existing) {
@@ -56,7 +67,7 @@ class AccountManager {
         ...userInfo
       };
     } catch (error) {
-      logger.error(`添加监控账号失败: ${error.message}`, { username, error });
+      logger.error(`添加监控账号失败: ${error.message}`, { username: usernameOrData, error });
       throw error;
     }
   }
