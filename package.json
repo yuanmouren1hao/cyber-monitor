@@ -1,0 +1,31 @@
+{
+  "name": "twitter-monitor-system",
+  "version": "1.0.0",
+  "description": "A Node.js application to monitor Twitter accounts, analyze tweets with Deepseek API, and send notifications via ntfy.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "twitter",
+    "monitoring",
+    "deepseek",
+    "ntfy",
+    "nodejs",
+    "sqlite"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "better-sqlite3": "^11.1.2",
+    "twitter-api-v2": "^1.16.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

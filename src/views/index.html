@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter 监控分析系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            text-align: center;
+            color: #ecf0f1;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        .sidebar ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #f0f2f5;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        .card .button {
+            display: inline-block;
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        .card .button:hover {
+            background-color: #2980b9;
+        }
+        .section-content {
+            display: none; /* 默认隐藏所有内容 */
+        }
+        .section-content.active {
+            display: block; /* 显示当前激活的内容 */
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group textarea {
+            width: calc(100% - 24px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-actions button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .form-actions button:hover {
+            background-color: #27ae60;
+        }
+        .form-actions button.delete {
+            background-color: #e74c3c;
+            margin-left: 10px;
+        }
+        .form-actions button.delete:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Twitter Monitor</h2>
+        <ul>
+            <li><a href="#" class="active" data-section="dashboard">仪表盘</a></li>
+            <li><a href="#" data-section="account-management">账号管理</a></li>
+            <li><a href="#" data-section="tweet-browser">推文浏览</a></li>
+            <li><a href="#" data-section="system-settings">系统设置</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h1 id="section-title">仪表盘</h1>
+            <div class="header-actions">
+                <!-- 可以在这里添加全局操作按钮 -->
+            </div>
+        </div>
+
+        <div id="dashboard" class="section-content active">
+            <div class="card-container">
+                <div class="card">
+                    <h3>监控状态</h3>
+                    <p>当前系统正在监控 <strong><span id="monitored-accounts-count">0</span></strong> 个 Twitter 账号。</p>
+                    <p>已处理 <strong><span id="processed-tweets-count">0</span></strong> 条推文。</p>
+                    <button class="button" onclick="startMonitoring()">开始监控</button>
+                    <button class="button" style="background-color: #e67e22;" onclick="stopMonitoring()">停止监控</button>
+                </div>
+                <div class="card">
+                    <h3>最新分析概览</h3>
+                    <p>最近一条推文的情感分析结果：<strong id="latest-sentiment">N/A</strong></p>
+                    <p>最近一条推文的关键词：<strong id="latest-keywords">N/A</strong></p>
+                    <a href="#" class="button" data-section="tweet-browser">查看所有分析</a>
+                </div>
+                <div class="card">
+                    <h3>通知系统状态</h3>
+                    <p>ntfy 通知服务已 <strong id="ntfy-status">未配置</strong>。</p>
+                    <p>请确保您的 ntfy 服务器和主题已正确设置。</p>
+                    <a href="#" class="button" data-section="system-settings">配置通知</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="account-management" class="section-content">
+            <div class="card">
+                <h3>管理 Twitter 账号</h3>
+                <p>在这里您可以添加、编辑或删除您希望监控的 Twitter 账号。</p>
+                <button class="button" onclick="showAddAccountForm()">添加新账号</button>
+                <div id="add-account-form" style="display: none; margin-top: 20px;">
+                    <h4>添加 Twitter 账号</h4>
+                    <div class="form-group">
+                        <label for="username">用户名 (@)</label>
+                        <input type="text" id="username" placeholder="例如: elonmusk">
+                    </div>
+                    <div class="form-group">
+                        <label for="twitterUserId">Twitter 用户 ID</label>
+                        <input type="text" id="twitterUserId" placeholder="例如: 44196397">
+                    </div>
+                    <div class="form-group">
+                        <label for="consumerKey">Consumer Key</label>
+                        <input type="password" id="consumerKey" placeholder="您的 Twitter API Consumer Key">
+                    </div>
+                    <div class="form-group">
+                        <label for="consumerSecret">Consumer Secret</label>
+                        <input type="password" id="consumerSecret" placeholder="您的 Twitter API Consumer Secret">
+                    </div>
+                    <div class="form-group">
+                        <label for="accessToken">Access Token</label>
+                        <input type="password" id="accessToken" placeholder="您的 Twitter API Access Token">
+                    </div>
+                    <div class="form-group">
+                        <label for="accessSecret">Access Secret</label>
+                        <input type="password" id="accessSecret" placeholder="您的 Twitter API Access Secret">
+                    </div>
+                    <div class="form-actions">
+                        <button onclick="addAccount()">保存账号</button>
+                        <button class="delete" onclick="hideAddAccountForm()">取消</button>
+                    </div>
+                </div>
+                <h4 style="margin-top: 30px;">已配置账号</h4>
+                <table id="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>Twitter 用户 ID</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 账号列表将通过 JavaScript 动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tweet-browser" class="section-content">
+            <div class="card">
+                <h3>浏览推文及分析结果</h3>
+                <p>查看所有已监控和分析的推文。</p>
+                <div class="form-group">
+                    <label for="select-account-tweets">选择账号:</label>
+                    <select id="select-account-tweets" onchange="loadTweetsForAccount()">
+                        <option value="">所有账号</option>
+                        <!-- 账号选项将通过 JavaScript 动态加载 -->
+                    </select>
+                </div>
+                <table id="tweets-table">
+                    <thead>
+                        <tr>
+                            <th>推文 ID</th>
+                            <th>作者</th>
+                            <th>内容</th>
+                            <th>发布时间</th>
+                            <th>情感</th>
+                            <th>关键词</th>
+                            <th>摘要</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 推文列表将通过 JavaScript 动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="system-settings" class="section-content">
+            <div class="card">
+                <h3>系统设置</h3>
+                <p>配置 Deepseek API 和 ntfy 通知服务。</p>
+                <h4>Deepseek API 设置</h4>
+                <div class="form-group">
+                    <label for="deepseekApiKey">Deepseek API Key</label>
+                    <input type="password" id="deepseekApiKey" placeholder="您的 Deepseek API Key">
+                </div>
+                <div class="form-actions">
+                    <button onclick="saveDeepseekSettings()">保存 Deepseek 设置</button>
+                </div>
+
+                <h4 style="margin-top: 30px;">ntfy 通知设置</h4>
+                <div class="form-group">
+                    <label for="ntfyServer">ntfy 服务器地址</label>
+                    <input type="text" id="ntfyServer" placeholder="例如: https://ntfy.sh">
+                </div>
+                <div class="form-group">
+                    <label for="ntfyTopic">ntfy 主题</label>
+                    <input type="text" id="ntfyTopic" placeholder="例如: my_twitter_alerts">
+                </div>
+                <div class="form-actions">
+                    <button onclick="saveNtfySettings()">保存 ntfy 设置</button>
+                    <button class="button" style="background-color: #3498db;" onclick="testNtfyNotification()">测试通知</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 侧边栏导航逻辑
+            const navLinks = document.querySelectorAll('.sidebar ul li a');
+            const sections = document.querySelectorAll('.section-content');
+            const sectionTitle = document.getElementById('section-title');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetSectionId = e.target.dataset.section;
+
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    sections.forEach(section => {
+                        if (section.id === targetSectionId) {
+                            section.classList.add('active');
+                        } else {
+                            section.classList.remove('active');
+                        }
+                    });
+                    sectionTitle.textContent = e.target.textContent; // 更新标题
+
+                    // 根据切换的页面加载数据
+                    if (targetSectionId === 'dashboard') {
+                        loadDashboardData();
+                    } else if (targetSectionId === 'account-management') {
+                        loadAccounts();
+                    } else if (targetSectionId === 'tweet-browser') {
+                        loadAccountOptionsForTweets();
+                        loadTweetsForAccount(); // 默认加载所有推文
+                    } else if (targetSectionId === 'system-settings') {
+                        loadSystemSettings();
+                    }
+                });
+            });
+
+            // 初始加载仪表盘数据
+            loadDashboardData();
+            loadSystemSettings(); // 预加载系统设置以便显示ntfy状态
+        });
+
+        // 模拟后端API调用
+        async function fetchData(url, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Something went wrong');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                alert('操作失败: ' + error.message);
+                return null;
+            }
+        }
+
+        // 仪表盘功能
+        async function loadDashboardData() {
+            const stats = await fetchData('/api/dashboard-stats');
+            if (stats) {
+                document.getElementById('monitored-accounts-count').textContent = stats.monitoredAccountsCount;
+                document.getElementById('processed-tweets-count').textContent = stats.processedTweetsCount;
+                document.getElementById('latest-sentiment').textContent = stats.latestAnalysis?.sentiment || 'N/A';
+                document.getElementById('latest-keywords').textContent = stats.latestAnalysis?.keywords?.join(', ') || 'N/A';
+            }
+
+            const ntfyConfig = await fetchData('/api/settings/ntfy');
+            if (ntfyConfig && ntfyConfig.ntfyServer && ntfyConfig.ntfyTopic) {
+                document.getElementById('ntfy-status').textContent = '已配置';
+                document.getElementById('ntfy-status').style.color = 'green';
+            } else {
+                document.getElementById('ntfy-status').textContent = '未配置';
+                document.getElementById('ntfy-status').style.color = 'red';
+            }
+        }
+
+        async function startMonitoring() {
+            const result = await fetchData('/api/monitor/start', 'POST');
+            if (result && result.success) {
+                alert('监控已启动！');
+                loadDashboardData();
+            }
+        }
+
+        async function stopMonitoring() {
+            const result = await fetchData('/api/monitor/stop', 'POST');
+            if (result && result.success) {
+                alert('监控已停止！');
+                loadDashboardData();
+            }
+        }
+
+        // 账号管理功能
+        function showAddAccountForm() {
+            document.getElementById('add-account-form').style.display = 'block';
+        }
+
+        function hideAddAccountForm() {
+            document.getElementById('add-account-form').style.display = 'none';
+            // 清空表单
+            document.getElementById('username').value = '';
+            document.getElementById('twitterUserId').value = '';
+            document.getElementById('consumerKey').value = '';
+            document.getElementById('consumerSecret').value = '';
+            document.getElementById('accessToken').value = '';
+            document.getElementById('accessSecret').value = '';
+        }
+
+        async function addAccount() {
+            const username = document.getElementById('username').value;
+            const twitterUserId = document.getElementById('twitterUserId').value;
+            const consumerKey = document.getElementById('consumerKey').value;
+            const consumerSecret = document.getElementById('consumerSecret').value;
+            const accessToken = document.getElementById('accessToken').value;
+            const accessSecret = document.getElementById('accessSecret').value;
+
+            if (!username || !twitterUserId || !consumerKey || !consumerSecret || !accessToken || !accessSecret) {
+                alert('请填写所有账号信息！');
+                return;
+            }
+
+            const data = { username, twitterUserId, consumerKey, consumerSecret, accessToken, accessSecret };
+            const result = await fetchData('/api/accounts', 'POST', data);
+            if (result && result.success) {
+                alert('账号添加成功！');
+                hideAddAccountForm();
+                loadAccounts();
+            }
+        }
+
+        async function loadAccounts() {
+            const accounts = await fetchData('/api/accounts');
+            const tableBody = document.querySelector('#accounts-table tbody');
+            tableBody.innerHTML = ''; // 清空现有内容
+
+            if (accounts) {
+                accounts.forEach(account => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = account.id;
+                    row.insertCell(1).textContent = account.username;
+                    row.insertCell(2).textContent = account.twitter_user_id;
+                    const actionsCell = row.insertCell(3);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = '删除';
+                    deleteButton.className = 'button delete';
+                    deleteButton.onclick = () => deleteAccount(account.id);
+                    actionsCell.appendChild(deleteButton);
+                });
+            }
+        }
+
+        async function deleteAccount(id) {
+            if (confirm('确定要删除此账号吗？')) {
+                const result = await fetchData(`/api/accounts/${id}`, 'DELETE');
+                if (result && result.success) {
+                    alert('账号删除成功！');
+                    loadAccounts();
+                }
+            }
+        }
+
+        // 推文浏览功能
+        async function loadAccountOptionsForTweets() {
+            const accounts = await fetchData('/api/accounts');
+            const selectElement = document.getElementById('select-account-tweets');
+            selectElement.innerHTML = '<option value="">所有账号</option>'; // 默认选项
+
+            if (accounts) {
+                accounts.forEach(account => {
+                    const option = document.createElement('option');
+                    option.value = account.id;
+                    option.textContent = `@${account.username}`;
+                    selectElement.appendChild(option);
+                });
+            }
+        }
+
+        async function loadTweetsForAccount() {
+            const accountId = document.getElementById('select-account-tweets').value;
+            let tweets = [];
+            if (accountId) {
+                tweets = await fetchData(`/api/tweets?accountId=${accountId}`);
+            } else {
+                tweets = await fetchData('/api/tweets'); // 获取所有推文
+            }
+
+            const tableBody = document.querySelector('#tweets-table tbody');
+            tableBody.innerHTML = '';
+
+            if (tweets) {
+                for (const tweet of tweets) {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = tweet.tweet_id;
+                    row.insertCell(1).textContent = `@${tweet.author_username}`;
+                    row.insertCell(2).textContent = tweet.text.substring(0, 50) + '...'; // 截断显示
+                    row.insertCell(3).textContent = new Date(tweet.created_at).toLocaleString();
+
+                    // 获取分析结果
+                    const analysis = await fetchData(`/api/tweets/${tweet.tweet_id}/analysis`);
+                    row.insertCell(4).textContent = analysis?.sentiment || 'N/A';
+                    row.insertCell(5).textContent = analysis?.keywords?.join(', ') || 'N/A';
+                    row.insertCell(6).textContent = analysis?.summary?.substring(0, 50) + '...' || 'N/A';
+
+                    const actionsCell = row.insertCell(7);
+                    const viewButton = document.createElement('button');
+                    viewButton.textContent = '查看详情';
+                    viewButton.className = 'button';
+                    viewButton.style.backgroundColor = '#6c757d';
+                    viewButton.onclick = () => showTweetDetails(tweet, analysis);
+                    actionsCell.appendChild(viewButton);
+                }
+            }
+        }
+
+        function showTweetDetails(tweet, analysis) {
+            let details = `
+                <h3>推文详情</h3>
+                <p><strong>推文 ID:</strong> ${tweet.tweet_id}</p>
+                <p><strong>作者:</strong> @${tweet.author_username}</p>
+                <p><strong>内容:</strong> ${tweet.text}</p>
+                <p><strong>发布时间:</strong> ${new Date(tweet.created_at).toLocaleString()}</p>
+                <p><strong>推文链接:</strong> <a href="${tweet.tweet_url}" target="_blank">${tweet.tweet_url}</a></p>
+                <h4>分析结果</h4>
+                <p><strong>情感:</strong> ${analysis?.sentiment || 'N/A'}</p>
+                <p><strong>关键词:</strong> ${analysis?.keywords?.join(', ') || 'N/A'}</p>
+                <p><strong>摘要:</strong> ${analysis?.summary || 'N/A'}</p>
+            `;
+            alert(details); // 简单的弹窗显示详情
+        }
+
+        // 系统设置功能
+        async function loadSystemSettings() {
+            const deepseekConfig = await fetchData('/api/settings/deepseek');
+            if (deepseekConfig && deepseekConfig.apiKey) {
+                document.getElementById('deepseekApiKey').value = deepseekConfig.apiKey;
+            }
+
+            const ntfyConfig = await fetchData('/api/settings/ntfy');
+            if (ntfyConfig) {
+                document.getElementById('ntfyServer').value = ntfyConfig.ntfyServer || '';
+                document.getElementById('ntfyTopic').value = ntfyConfig.ntfyTopic || '';
+            }
+        }
+
+        async function saveDeepseekSettings() {
+            const apiKey = document.getElementById('deepseekApiKey').value;
+            const result = await fetchData('/api/settings/deepseek', 'POST', { apiKey });
+            if (result && result.success) {
+                alert('Deepseek 设置保存成功！');
+            }
+        }
+
+        async function saveNtfySettings() {
+            const ntfyServer = document.getElementById('ntfyServer').value;
+            const ntfyTopic = document.getElementById('ntfyTopic').value;
+            const result = await fetchData('/api/settings/ntfy', 'POST', { ntfyServer, ntfyTopic });
+            if (result && result.success) {
+                alert('ntfy 设置保存成功！');
+                loadDashboardData(); // 更新仪表盘的ntfy状态
+            }
+        }
+
+        async function testNtfyNotification() {
+            const result = await fetchData('/api/settings/ntfy/test', 'POST');
+            if (result && result.success) {
+                alert('测试通知已发送，请检查您的手机！');
+            }
+        }
+    </script>
+</body>
+</html>
