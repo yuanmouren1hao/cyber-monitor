@@ -43,6 +43,38 @@ const config = {
   server: {
     port: parseInt(process.env.PORT) || 3000,
     host: process.env.HOST || 'localhost'
+  },
+
+  // 添加 get 方法
+  get: function(key, defaultValue = null) {
+    const keys = key.split('.');
+    let value = this;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        return defaultValue;
+      }
+    }
+    
+    return value;
+  },
+
+  // 添加 set 方法
+  set: function(key, value) {
+    const keys = key.split('.');
+    let obj = this;
+    
+    for (let i = 0; i < keys.length - 1; i++) {
+      const k = keys[i];
+      if (!(k in obj) || typeof obj[k] !== 'object') {
+        obj[k] = {};
+      }
+      obj = obj[k];
+    }
+    
+    obj[keys[keys.length - 1]] = value;
   }
 };
 

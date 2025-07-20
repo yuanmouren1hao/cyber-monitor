@@ -166,6 +166,154 @@ class Database {
   }
 
   /**
+   * 获取所有监控的 Twitter 账号
+   */
+  getAllTwitterAccounts() {
+    return this.query('SELECT * FROM monitored_accounts WHERE is_active = 1 ORDER BY created_at DESC');
+  }
+
+  /**
+   * 添加监控账号
+   */
+  addTwitterAccount(accountData) {
+    const { username, user_id, display_name, profile_image_url, description, followers_count, following_count, tweet_count } = accountData;
+    return this.run(
+      `INSERT INTO monitored_accounts 
+       (username, user_id, display_name, profile_image_url, description, followers_count, following_count, tweet_count) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [username, user_id, display_name, profile_image_url, description, followers_count, following_count, tweet_count]
+    );
+  }
+
+  /**
+   * 删除监控账号
+   */
+  removeTwitterAccount(username) {
+    return this.run('UPDATE monitored_accounts SET is_active = 0 WHERE username = ?', [username]);
+  }
+
+  /**
+   * 获取推文总数
+   */
+  getTweetCount() {
+    return this.query('SELECT COUNT(*) as count FROM tweets');
+  }
+
+  /**
+   * 获取推文总数（别名方法）
+   */
+  getTweetsCount() {
+    return this.getTweetCount();
+  }
+
+  /**
+   * 获取所有推文
+   */
+  getAllTweets(limit = 50) {
+    return this.query('SELECT * FROM tweets ORDER BY created_at DESC LIMIT ?', [limit]);
+  }
+
+  /**
+   * 获取分析总数
+   */
+  getAnalysisCount() {
+    return this.query('SELECT COUNT(*) as count FROM tweet_analysis');
+  }
+
+  /**
+   * 获取通知总数
+   */
+  getNotificationCount() {
+    return this.query('SELECT COUNT(*) as count FROM notifications');
+  }
+
+  /**
+   * 保存推文
+   */
+  saveTweet(tweetData) {
+    const { id, user_id, username, text, created_at, retweet_count, like_count, reply_count, quote_count, has_media, media_urls, referenced_tweets, entities, raw_data } = tweetData;
+    return this.run(
+      `INSERT OR REPLACE INTO tweets 
+       (id, user_id, username, text, created_at, retweet_count, like_count, reply_count, quote_count, has_media, media_urls, referenced_tweets, entities, raw_data) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, user_id, username, text, created_at, retweet_count, like_count, reply_count, quote_count, has_media, media_urls, referenced_tweets, entities, raw_data]
+    );
+  }
+
+  /**
+   * 获取最新推文
+   */
+  getLatestTweets(limit = 50) {
+    return this.query('SELECT * FROM tweets ORDER BY created_at DESC LIMIT ?', [limit]);
+  }
+
+  /**
+   * 保存分析结果
+   */
+  saveAnalysis(analysisData) {
+    const { tweet_id, sentiment_score, sentiment_label, keywords, summary, analysis_data } = analysisData;
+    return this.run(
+      `INSERT INTO tweet_analysis (tweet_id, sentiment_score, sentiment_label, keywords, summary, analysis_data) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [tweet_id, sentiment_score, sentiment_label, keywords, summary, analysis_data]
+    );
+  }
+
+  /**
+   * 获取最新的推文分析
+   */
+  getLatestTweetAnalysis(limit = 10) {
+    return this.query(
+      `SELECT ta.*, t.text, t.username, t.created_at as tweet_created_at 
+       FROM tweet_analysis ta 
+       JOIN tweets t ON ta.tweet_id = t.id 
+       ORDER BY ta.analyzed_at DESC 
+       LIMIT ?`,
+      [limit]
+    );
+  }
+
+  /**
+   * 获取所有分析结果
+   */
+  getAllAnalysis(limit = 50) {
+    return this.query(
+      `SELECT ta.*, t.text, t.username, t.created_at as tweet_created_at 
+       FROM tweet_analysis ta 
+       JOIN tweets t ON ta.tweet_id = t.id 
+       ORDER BY ta.analyzed_at DESC 
+       LIMIT ?`,
+      [limit]
+    );
+  }
+
+  /**
+   * 初始化数据库（用于外部调用）
+   */
+  initDb() {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        resolve();
+      } else {
+        // 如果数据库未初始化，重新初始化
+        try {
+          this.init();
+          // 等待数据库连接完成
+          setTimeout(() => {
+            if (this.db) {
+              resolve();
+            } else {
+              reject(new Error('数据库初始化失败'));
+            }
+          }, 1000);
+        } catch (error) {
+          reject(error);
+        }
+      }
+    });
+  }
+
+  /**
    * 关闭数据库连接
    */
   close() {
@@ -180,6 +328,13 @@ class Database {
         }
       });
     });
+  }
+
+  /**
+   * 关闭数据库连接（用于外部调用）
+   */
+  closeDb() {
+    return this.close();
   }
 }
 

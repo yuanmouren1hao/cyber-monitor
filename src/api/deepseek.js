@@ -9,7 +9,8 @@ const config = require('../utils/config');
 
 class DeepseekClient {
   constructor() {
-    this.apiKey = config.get('deepseek_api_key');
+    // 修改这一行
+    this.apiKey = config.get('deepseek.apiKey') || process.env.DEEPSEEK_API_KEY;
     this.baseUrl = 'https://api.deepseek.com/v1';
   }
 
